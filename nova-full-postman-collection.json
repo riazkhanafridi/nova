@@ -1,0 +1,370 @@
+{
+  "info": {
+    "name": "NOVA Backend Full API Collection",
+    "description": "Complete Postman collection for the NOVA backend project.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "nova-full-backend-collection-2026"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "API Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Admin (Seed)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{base_url}}/auth/register-admin", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "register-admin"] }
+          }
+        },
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"+1234567890\",\n  \"password\": \"Pass@1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/register", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@nova.com\",\n  \"password\": \"Admin@1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/login", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/refresh-token", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "refresh-token"] }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john@example.com\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/forgot-password", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "forgot-password"] }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john@example.com\",\n  \"otp\": \"123456\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/verify-otp", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "verify-otp"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john@example.com\",\n  \"newPassword\": \"NewPass@1234\",\n  \"confirmPassword\": \"NewPass@1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/reset-password", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "reset-password"] }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/auth/profile", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "profile"] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "body": { "mode": "formdata", "formdata": [
+              { "key": "fullName", "value": "John Updated", "type": "text" },
+              { "key": "phone", "value": "+1230000000", "type": "text" },
+              { "key": "avatar", "type": "file", "src": "" }
+            ] },
+            "url": { "raw": "{{base_url}}/auth/profile", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "profile"] }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Pass@1234\",\n  \"newPassword\": \"NewPass@1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/change-password", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "change-password"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/auth/logout", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "logout"] }
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/auth/users?page=1&limit=20",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "auth", "users"],
+              "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }]
+            }
+          }
+        },
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Support User\",\n  \"email\": \"support@example.com\",\n  \"phone\": \"+1555000222\",\n  \"password\": \"Support@1234\",\n  \"role\": \"customer\",\n  \"status\": \"ACTIVE\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/users", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "users"] }
+          }
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Updated Name\",\n  \"role\": \"customer\",\n  \"status\": \"ACTIVE\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/users/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "users", "1"] }
+          }
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/auth/users/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "auth", "users", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        { "name": "Get All Categories", "request": { "method": "GET", "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Get Category By ID", "request": { "method": "GET", "url": { "raw": "{{base_url}}/categories/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories", "1"] } } },
+        { "name": "Create Category (Admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Accessories", "type": "text" }, { "key": "description", "value": "Premium accessories", "type": "text" }, { "key": "image", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Update Category (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Updated Category", "type": "text" }, { "key": "description", "value": "Updated description", "type": "text" }, { "key": "image", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/categories/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories", "1"] } } },
+        { "name": "Delete Category (Admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/categories/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories", "1"] } } }
+      ]
+    },
+    {
+      "name": "Brands",
+      "item": [
+        { "name": "Get All Brands", "request": { "method": "GET", "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Get Brand By ID", "request": { "method": "GET", "url": { "raw": "{{base_url}}/brands/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands", "1"] } } },
+        { "name": "Create Brand (Admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Apple", "type": "text" }, { "key": "logo", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Update Brand (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Apple Inc", "type": "text" }, { "key": "logo", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/brands/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands", "1"] } } },
+        { "name": "Delete Brand (Admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/brands/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands", "1"] } } }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        { "name": "Get All Products", "request": { "method": "GET", "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Get Featured Products", "request": { "method": "GET", "url": { "raw": "{{base_url}}/products/featured", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "featured"] } } },
+        { "name": "Get Best Sellers", "request": { "method": "GET", "url": { "raw": "{{base_url}}/products/best-sellers", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "best-sellers"] } } },
+        { "name": "Get New Arrivals", "request": { "method": "GET", "url": { "raw": "{{base_url}}/products/new-arrivals", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "new-arrivals"] } } },
+        { "name": "Get Product By ID", "request": { "method": "GET", "url": { "raw": "{{base_url}}/products/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "1"] } } },
+        { "name": "Create Product (Admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "AirPods Pro", "type": "text" }, { "key": "description", "value": "Wireless earbuds", "type": "text" }, { "key": "price", "value": "299", "type": "text" }, { "key": "categoryId", "value": "1", "type": "text" }, { "key": "brandId", "value": "1", "type": "text" }, { "key": "stock", "value": "50", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "images", "type": "file", "src": "" }, { "key": "images", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Update Product (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Updated Product", "type": "text" }, { "key": "price", "value": "349", "type": "text" }, { "key": "stock", "value": "40", "type": "text" }, { "key": "images", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/products/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "1"] } } },
+        { "name": "Delete Product (Admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/products/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "1"] } } },
+        { "name": "Delete Product Image (Admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/products/images/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "images", "1"] } } },
+        { "name": "Set Primary Image (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/products/images/1/primary", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products", "images", "1", "primary"] } } }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        { "name": "Get Cart", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/cart", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "cart"] } } },
+        { "name": "Add To Cart", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"productId\": 1,\n  \"quantity\": 1\n}" }, "url": { "raw": "{{base_url}}/cart/add", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "cart", "add"] } } },
+        { "name": "Update Cart Item", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"quantity\": 3\n}" }, "url": { "raw": "{{base_url}}/cart/item/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "cart", "item", "1"] } } },
+        { "name": "Remove Cart Item", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/cart/item/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "cart", "item", "1"] } } },
+        { "name": "Clear Cart", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/cart/clear", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "cart", "clear"] } } }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        { "name": "Place Order", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"addressId\": 1,\n  \"paymentMethod\": \"CASH\",\n  \"couponCode\": \"\"\n}" }, "url": { "raw": "{{base_url}}/orders/place", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders", "place"] } } },
+        { "name": "My Orders", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/orders/my-orders", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders", "my-orders"] } } },
+        { "name": "Get Order By ID", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/orders/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders", "1"] } } },
+        { "name": "Cancel Order", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/orders/1/cancel", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders", "1", "cancel"] } } },
+        { "name": "Get All Orders (Admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/orders", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders"] } } },
+        { "name": "Update Order Status (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"CONFIRMED\"\n}" }, "url": { "raw": "{{base_url}}/orders/1/status", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders", "1", "status"] } } }
+      ]
+    },
+    {
+      "name": "Order Items",
+      "item": [
+        { "name": "Get Order with OrderItems", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/orders/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders", "1"] } } },
+        { "name": "Order Items Response Example", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/orders/my-orders?page=1&limit=10", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "orders", "my-orders"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] } } }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        { "name": "Get Product Reviews", "request": { "method": "GET", "url": { "raw": "{{base_url}}/reviews/product/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "reviews", "product", "1"] } } },
+        { "name": "Create Review (Customer)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "rating", "value": "5", "type": "text" }, { "key": "title", "value": "Excellent product", "type": "text" }, { "key": "comment", "value": "The performance and quality exceeded my expectations.", "type": "text" }, { "key": "orderId", "value": "1", "type": "text" }, { "key": "images", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/reviews/product/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "reviews", "product", "1"] } } },
+        { "name": "Update Review", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excellent product\"\n}" }, "url": { "raw": "{{base_url}}/reviews/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "reviews", "1"] } } },
+        { "name": "Delete Review", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/reviews/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "reviews", "1"] } } },
+        { "name": "Get All Reviews (Admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/reviews", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "reviews"] } } },
+        { "name": "Update Review Status (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"APPROVED\"\n}" }, "url": { "raw": "{{base_url}}/reviews/1/status", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "reviews", "1", "status"] } } }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        { "name": "Get Wishlist", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/wishlist", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "wishlist"] } } },
+        { "name": "Toggle Wishlist", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"productId\": 1\n}" }, "url": { "raw": "{{base_url}}/wishlist/toggle", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "wishlist", "toggle"] } } },
+        { "name": "Check Wishlist", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/wishlist/check/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "wishlist", "check", "1"] } } },
+        { "name": "Clear Wishlist", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/wishlist/clear", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "wishlist", "clear"] } } }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
+        { "name": "Get Addresses", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/addresses", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "addresses"] } } },
+        { "name": "Add Address", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"label\": \"Home\",\n  \"addressLine1\": \"123 Main Street\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"country\": \"USA\",\n  \"postalCode\": \"10001\",\n  \"type\": \"HOME\"\n}" }, "url": { "raw": "{{base_url}}/addresses", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "addresses"] } } },
+        { "name": "Update Address", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"city\": \"Brooklyn\"\n}" }, "url": { "raw": "{{base_url}}/addresses/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "addresses", "1"] } } },
+        { "name": "Delete Address", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/addresses/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "addresses", "1"] } } },
+        { "name": "Set Default Address", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/addresses/1/default", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "addresses", "1", "default"] } } }
+      ]
+    },
+    {
+      "name": "Coupons",
+      "item": [
+        { "name": "Validate Coupon", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"SAVE10\"\n}" }, "url": { "raw": "{{base_url}}/coupons/validate", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "coupons", "validate"] } } },
+        { "name": "Get All Coupons", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/coupons", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "coupons"] } } },
+        { "name": "Create Coupon (Admin)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"SAVE10\",\n  \"type\": \"PERCENTAGE\",\n  \"value\": 10,\n  \"minimumOrderAmount\": 100,\n  \"expiresAt\": \"2026-12-31T23:59:59.000Z\"\n}" }, "url": { "raw": "{{base_url}}/coupons", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "coupons"] } } },
+        { "name": "Update Coupon (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"value\": 15\n}" }, "url": { "raw": "{{base_url}}/coupons/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "coupons", "1"] } } },
+        { "name": "Delete Coupon (Admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/coupons/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "coupons", "1"] } } }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        { "name": "Get My Notifications", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/notifications", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "notifications"] } } },
+        { "name": "Mark Notification As Read", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/notifications/1/read", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "notifications", "1", "read"] } } },
+        { "name": "Mark All Notifications As Read", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/notifications/read-all", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "notifications", "read-all"] } } },
+        { "name": "Delete Notification", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/notifications/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "notifications", "1"] } } }
+      ]
+    },
+    {
+      "name": "Banners",
+      "item": [
+        { "name": "Get Active Banners", "request": { "method": "GET", "url": { "raw": "{{base_url}}/banners/active", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "banners", "active"] } } },
+        { "name": "Get All Banners (Admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/banners", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "banners"] } } },
+        { "name": "Create Banner (Admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "title", "value": "Summer Sale", "type": "text" }, { "key": "subtitle", "value": "Up to 50% off", "type": "text" }, { "key": "image", "type": "file", "src": "" }, { "key": "link", "value": "/products", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }] }, "url": { "raw": "{{base_url}}/banners", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "banners"] } } },
+        { "name": "Update Banner (Admin)", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "title", "value": "Updated Banner", "type": "text" }, { "key": "image", "type": "file", "src": "" }] }, "url": { "raw": "{{base_url}}/banners/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "banners", "1"] } } },
+        { "name": "Delete Banner (Admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/banners/1", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "banners", "1"] } } }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        { "name": "Dashboard Overview (Admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/dashboard/overview", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "dashboard", "overview"] } } },
+        { "name": "Sales Analytics (Admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/dashboard/analytics", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "dashboard", "analytics"] } } },
+        { "name": "Recent Orders (Admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/dashboard/recent-orders", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "dashboard", "recent-orders"] } } },
+        { "name": "Top Products (Admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/dashboard/top-products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "dashboard", "top-products"] } } }
+      ]
+    },
+    {
+      "name": "Catalog Seed Data",
+      "item": [
+        { "name": "Create Brand - Apple", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Apple\",\n  \"description\": \"Premium mobile technology and accessories\"\n}" }, "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Create Brand - Samsung", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Samsung\",\n  \"description\": \"Reliable mobile and smart tech essentials\"\n}" }, "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Create Brand - Anker", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Anker\",\n  \"description\": \"Fast charging and audio accessories\"\n}" }, "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Create Brand - UGREEN", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"UGREEN\",\n  \"description\": \"Power hubs, chargers and workstation gear\"\n}" }, "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Create Brand - Logitech", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Logitech\",\n  \"description\": \"Performance hardware for gaming and computing\"\n}" }, "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Create Brand - BASEUS", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"BASEUS\",\n  \"description\": \"Everyday carry, mobile and protection accessories\"\n}" }, "url": { "raw": "{{base_url}}/brands", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "brands"] } } },
+        { "name": "Create Category - Mobile Accessories", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Mobile Accessories\",\n  \"description\": \"Phone protection, mounts, chargers and audio accessories\",\n  \"sortOrder\": 1\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Category - Computer Accessories", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Computer Accessories\",\n  \"description\": \"Premium keyboard, dock, hub and workspace accessories\",\n  \"sortOrder\": 2\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Category - Networking", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Networking\",\n  \"description\": \"Cables, adapters and connectivity essentials\",\n  \"sortOrder\": 3\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Category - Headphones", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Headphones\",\n  \"description\": \"Wireless and wired audio products for every lifestyle\",\n  \"sortOrder\": 4\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Category - Gaming Gear", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Gaming Gear\",\n  \"description\": \"Gaming essentials crafted for precision and speed\",\n  \"sortOrder\": 5\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Subcategory - Phone Cases", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Phone Cases\",\n  \"description\": \"Shockproof and style-focused phone protection\",\n  \"parentId\": 1,\n  \"sortOrder\": 1\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Subcategory - Chargers & Cables", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Chargers & Cables\",\n  \"description\": \"Fast-charge devices with durable cables\",\n  \"parentId\": 1,\n  \"sortOrder\": 2\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Subcategory - Laptop Accessories", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Laptop Accessories\",\n  \"description\": \"Upgrade your setup with premium laptop essentials\",\n  \"parentId\": 2,\n  \"sortOrder\": 1\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Subcategory - Wireless Audio", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Wireless Audio\",\n  \"description\": \"Noise-canceling and wireless sound gear\",\n  \"parentId\": 4,\n  \"sortOrder\": 1\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Subcategory - Wi-Fi Routers", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Wi-Fi Routers\",\n  \"description\": \"High-speed internet and home networking devices\",\n  \"parentId\": 3,\n  \"sortOrder\": 1\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Subcategory - Gaming Mice", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Gaming Mice\",\n  \"description\": \"Precision mice optimized for performance\",\n  \"parentId\": 5,\n  \"sortOrder\": 1\n}" }, "url": { "raw": "{{base_url}}/categories", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "categories"] } } },
+        { "name": "Create Service - Computer Repair", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Computer Repair\",\n  \"description\": \"Full diagnostics and performance repair for desktops and laptops\",\n  \"shortDescription\": \"Fix slow, damaged or outdated computers\",\n  \"price\": 120,\n  \"duration\": \"1-3 hours\",\n  \"turnaround\": \"Same day\",\n  \"icon\": \"laptop\",\n  \"sortOrder\": 1\n}" }, "url": { "raw": "{{base_url}}/services", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "services"] } } },
+        { "name": "Create Service - Laptop Repair", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Laptop Repair\",\n  \"description\": \"Battery, keyboard, board and display repairs for laptops\",\n  \"shortDescription\": \"Expert laptop repair and diagnostics\",\n  \"price\": 150,\n  \"duration\": \"2-4 hours\",\n  \"turnaround\": \"24 hours\",\n  \"icon\": \"monitor\",\n  \"sortOrder\": 2\n}" }, "url": { "raw": "{{base_url}}/services", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "services"] } } },
+        { "name": "Create Service - Data Recovery", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Data Recovery\",\n  \"description\": \"Recover lost files and repaired storage devices\",\n  \"shortDescription\": \"Safe recovery for HDD and SSD drives\",\n  \"price\": 180,\n  \"duration\": \"Same day\",\n  \"turnaround\": \"1-2 days\",\n  \"icon\": \"hard-drive\",\n  \"sortOrder\": 3\n}" }, "url": { "raw": "{{base_url}}/services", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "services"] } } },
+        { "name": "Create Service - Office Setup", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Office Setup\",\n  \"description\": \"Complete workstation and business tech setup\",\n  \"shortDescription\": \"Setup devices and network for offices\",\n  \"price\": 220,\n  \"duration\": \"3-5 hours\",\n  \"turnaround\": \"Next business day\",\n  \"icon\": \"briefcase\",\n  \"sortOrder\": 4\n}" }, "url": { "raw": "{{base_url}}/services", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "services"] } } },
+        { "name": "Create Service - Screen Repair", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Screen Repair\",\n  \"description\": \"Fast mobile and tablet display replacement service\",\n  \"shortDescription\": \"Cracked screens repaired professionally\",\n  \"price\": 95,\n  \"duration\": \"1-2 hours\",\n  \"turnaround\": \"Same day\",\n  \"icon\": \"smartphone\",\n  \"sortOrder\": 5\n}" }, "url": { "raw": "{{base_url}}/services", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "services"] } } },
+        { "name": "Create Product - Pro Wireless Earbuds", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Pro Wireless Earbuds", "type": "text" }, { "key": "description", "value": "Premium wireless earbuds with active noise cancellation, deep bass and all-day comfort.", "type": "text" }, { "key": "shortDescription", "value": "Premium earbuds for calls, music and workouts.", "type": "text" }, { "key": "sku", "value": "NOVA-EP-001", "type": "text" }, { "key": "price", "value": "299", "type": "text" }, { "key": "comparePrice", "value": "399", "type": "text" }, { "key": "quantity", "value": "45", "type": "text" }, { "key": "categoryId", "value": "4", "type": "text" }, { "key": "brandId", "value": "3", "type": "text" }, { "key": "isFeatured", "value": "true", "type": "text" }, { "key": "isBestSeller", "value": "true", "type": "text" }, { "key": "isNewArrival", "value": "false", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Battery\":\"30 hours\",\"Connectivity\":\"Bluetooth 5.3\",\"Weight\":\"45g\"}", "type": "text" }, { "key": "tags", "value": "[\"wireless\",\"earbuds\",\"audio\",\"premium\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - 140W GaN Wall Charger", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "140W GaN Wall Charger", "type": "text" }, { "key": "description", "value": "Compact 140W GaN charger delivering ultra-fast power to phone, laptop and tablet devices.", "type": "text" }, { "key": "shortDescription", "value": "Fast, compact GaN wall charger.", "type": "text" }, { "key": "sku", "value": "NOVA-CH-002", "type": "text" }, { "key": "price", "value": "199", "type": "text" }, { "key": "comparePrice", "value": "249", "type": "text" }, { "key": "quantity", "value": "60", "type": "text" }, { "key": "categoryId", "value": "1", "type": "text" }, { "key": "brandId", "value": "4", "type": "text" }, { "key": "isFeatured", "value": "true", "type": "text" }, { "key": "isBestSeller", "value": "false", "type": "text" }, { "key": "isNewArrival", "value": "true", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Output\":\"140W\",\"Ports\":\"3 ports\",\"Type\":\"GaN\"}", "type": "text" }, { "key": "tags", "value": "[\"charger\",\"gan\",\"fast-charge\",\"accessories\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - Mechanical Keyboard TKL", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Mechanical Keyboard TKL", "type": "text" }, { "key": "description", "value": "Compact tenkeyless gaming keyboard with mechanical switches and custom lighting.", "type": "text" }, { "key": "shortDescription", "value": "Compact keyboard built for gaming and productivity.", "type": "text" }, { "key": "sku", "value": "NOVA-KB-003", "type": "text" }, { "key": "price", "value": "599", "type": "text" }, { "key": "comparePrice", "value": "699", "type": "text" }, { "key": "quantity", "value": "32", "type": "text" }, { "key": "categoryId", "value": "2", "type": "text" }, { "key": "brandId", "value": "5", "type": "text" }, { "key": "isFeatured", "value": "true", "type": "text" }, { "key": "isBestSeller", "value": "false", "type": "text" }, { "key": "isNewArrival", "value": "true", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Layout\":\"TKL\",\"Switches\":\"Mechanical\",\"Lighting\":\"RGB\"}", "type": "text" }, { "key": "tags", "value": "[\"keyboard\",\"computer\",\"gaming\",\"logitech\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - Magnetic Car Mount", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Magnetic Car Mount", "type": "text" }, { "key": "description", "value": "Strong magnetic phone mount for easy navigation and hands-free calls in the car.", "type": "text" }, { "key": "shortDescription", "value": "Secure car mount for phone navigation.", "type": "text" }, { "key": "sku", "value": "NOVA-CM-004", "type": "text" }, { "key": "price", "value": "79", "type": "text" }, { "key": "comparePrice", "value": "99", "type": "text" }, { "key": "quantity", "value": "80", "type": "text" }, { "key": "categoryId", "value": "1", "type": "text" }, { "key": "brandId", "value": "6", "type": "text" }, { "key": "isFeatured", "value": "true", "type": "text" }, { "key": "isBestSeller", "value": "true", "type": "text" }, { "key": "isNewArrival", "value": "false", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Grip\":\"Magnetic\",\"Usage\":\"Vehicle\",\"Material\":\"ABS\"}", "type": "text" }, { "key": "tags", "value": "[\"car-mount\",\"mobile\",\"travel\",\"accessory\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - Screen Protector Set", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Screen Protector Set", "type": "text" }, { "key": "description", "value": "Scratch-resistant tempered glass protector set for modern smartphones.", "type": "text" }, { "key": "shortDescription", "value": "Tempered glass screen protection pack.", "type": "text" }, { "key": "sku", "value": "NOVA-SP-005", "type": "text" }, { "key": "price", "value": "49", "type": "text" }, { "key": "comparePrice", "value": "69", "type": "text" }, { "key": "quantity", "value": "90", "type": "text" }, { "key": "categoryId", "value": "1", "type": "text" }, { "key": "brandId", "value": "6", "type": "text" }, { "key": "isFeatured", "value": "false", "type": "text" }, { "key": "isBestSeller", "value": "true", "type": "text" }, { "key": "isNewArrival", "value": "false", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Material\":\"Tempered glass\",\"Coverage\":\"Full front\",\"Pack\":\"2 pieces\"}", "type": "text" }, { "key": "tags", "value": "[\"screen-protector\",\"mobile\",\"glass\",\"accessories\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - 7-in-1 USB-C Hub", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "7-in-1 USB-C Hub", "type": "text" }, { "key": "description", "value": "Compact USB-C hub making your workspace faster and more connected.", "type": "text" }, { "key": "shortDescription", "value": "Expand ports with USB-C connectivity.", "type": "text" }, { "key": "sku", "value": "NOVA-HUB-006", "type": "text" }, { "key": "price", "value": "179", "type": "text" }, { "key": "comparePrice", "value": "219", "type": "text" }, { "key": "quantity", "value": "40", "type": "text" }, { "key": "categoryId", "value": "2", "type": "text" }, { "key": "brandId", "value": "4", "type": "text" }, { "key": "isFeatured", "value": "true", "type": "text" }, { "key": "isBestSeller", "value": "true", "type": "text" }, { "key": "isNewArrival", "value": "false", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Ports\":\"7 total\",\"Interface\":\"USB-C\",\"Compatibility\":\"MacBook and Windows\"}", "type": "text" }, { "key": "tags", "value": "[\"hub\",\"usb-c\",\"workspace\",\"accessory\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - 3-in-1 Wireless Charger", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "3-in-1 Wireless Charger", "type": "text" }, { "key": "description", "value": "Charge your watch, phone and earbuds simultaneously with elegant wireless convenience.", "type": "text" }, { "key": "shortDescription", "value": "Multi-device charging stand.", "type": "text" }, { "key": "sku", "value": "NOVA-WC-007", "type": "text" }, { "key": "price", "value": "229", "type": "text" }, { "key": "comparePrice", "value": "289", "type": "text" }, { "key": "quantity", "value": "35", "type": "text" }, { "key": "categoryId", "value": "1", "type": "text" }, { "key": "brandId", "value": "3", "type": "text" }, { "key": "isFeatured", "value": "true", "type": "text" }, { "key": "isBestSeller", "value": "false", "type": "text" }, { "key": "isNewArrival", "value": "true", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Charging\":\"3 devices\",\"Power\":\"15W\",\"Compatibility\":\"Qi-enabled\"}", "type": "text" }, { "key": "tags", "value": "[\"wireless\",\"charger\",\"desk\",\"mobile\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - Gaming Mouse Pro", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Gaming Mouse Pro", "type": "text" }, { "key": "description", "value": "Ergonomic gaming mouse with customizable buttons and ultra-fast response.", "type": "text" }, { "key": "shortDescription", "value": "Precision gaming mouse with RGB lighting.", "type": "text" }, { "key": "sku", "value": "NOVA-GM-008", "type": "text" }, { "key": "price", "value": "249", "type": "text" }, { "key": "comparePrice", "value": "299", "type": "text" }, { "key": "quantity", "value": "26", "type": "text" }, { "key": "categoryId", "value": "5", "type": "text" }, { "key": "brandId", "value": "5", "type": "text" }, { "key": "isFeatured", "value": "false", "type": "text" }, { "key": "isBestSeller", "value": "true", "type": "text" }, { "key": "isNewArrival", "value": "false", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Buttons\":\"8 programmable\",\"Sensor\":\"High precision\",\"RGB\":\"Customizable\"}", "type": "text" }, { "key": "tags", "value": "[\"gaming\",\"mouse\",\"logitech\",\"performance\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - Wi-Fi 6 Router", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Wi-Fi 6 Router", "type": "text" }, { "key": "description", "value": "High-speed Wi-Fi 6 router for homes, workspaces and streaming setups.", "type": "text" }, { "key": "shortDescription", "value": "Next-gen Wi-Fi for multiple devices.", "type": "text" }, { "key": "sku", "value": "NOVA-RT-009", "type": "text" }, { "key": "price", "value": "499", "type": "text" }, { "key": "comparePrice", "value": "599", "type": "text" }, { "key": "quantity", "value": "22", "type": "text" }, { "key": "categoryId", "value": "3", "type": "text" }, { "key": "brandId", "value": "4", "type": "text" }, { "key": "isFeatured", "value": "true", "type": "text" }, { "key": "isBestSeller", "value": "false", "type": "text" }, { "key": "isNewArrival", "value": "true", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Standard\":\"Wi-Fi 6\",\"Coverage\":\"Up to 3000 sq ft\",\"Speed\":\"AX5400\"}", "type": "text" }, { "key": "tags", "value": "[\"networking\",\"wifi\",\"router\",\"smart-home\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } },
+        { "name": "Create Product - USB-C to HDMI Cable", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "USB-C to HDMI Cable", "type": "text" }, { "key": "description", "value": "Reliable cable for dual-screen productivity, streaming and presentations.", "type": "text" }, { "key": "shortDescription", "value": "Connect USB-C devices to HDMI displays.", "type": "text" }, { "key": "sku", "value": "NOVA-HD-010", "type": "text" }, { "key": "price", "value": "89", "type": "text" }, { "key": "comparePrice", "value": "119", "type": "text" }, { "key": "quantity", "value": "55", "type": "text" }, { "key": "categoryId", "value": "3", "type": "text" }, { "key": "brandId", "value": "4", "type": "text" }, { "key": "isFeatured", "value": "false", "type": "text" }, { "key": "isBestSeller", "value": "false", "type": "text" }, { "key": "isNewArrival", "value": "true", "type": "text" }, { "key": "status", "value": "ACTIVE", "type": "text" }, { "key": "condition", "value": "NEW", "type": "text" }, { "key": "specifications", "value": "{\"Length\":\"2m\",\"Ports\":\"USB-C to HDMI\",\"Support\":\"4K\"}", "type": "text" }, { "key": "tags", "value": "[\"hdmi\",\"cable\",\"networking\",\"display\"]", "type": "text" }] }, "url": { "raw": "{{base_url}}/products", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "v1", "products"] } } }
+      ]
+    }
+  ]
+}
