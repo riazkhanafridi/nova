@@ -7,7 +7,7 @@ import { Label } from '../../components/ui/label';
 import { useToast } from '../../hooks/use-toast';
 import api from '../../lib/api';
 import { getMediaUrl } from '../../lib/media';
-import { clearAllCartState, getGuestCart } from '../../lib/cart';
+import { clearAllCartState, getGuestCart, getCartItemPrice } from '../../lib/cart';
 import { useAuth } from '../../context/AuthContext';
 import { Loader2, ShoppingBag, ShieldCheck, Truck, CreditCard, Lock, CheckCircle2 } from 'lucide-react';
 
@@ -80,8 +80,7 @@ export default function CheckoutPage() {
   const displayItems = user ? (dbItems.length > 0 ? dbItems : guestItems) : guestItems;
 
   const subtotal = displayItems.reduce((sum, item) => {
-    const price = Number(user ? item.price : (item.Product?.price || item.price || 0));
-    return sum + (price * (item.quantity || 1));
+    return sum + getCartItemPrice(item) * (Number(item.quantity) || 1);
   }, 0);
   
   // Apply coupon discount from cart
@@ -572,7 +571,7 @@ export default function CheckoutPage() {
                 const imgSrc = getMediaUrl(image?.imageUrl || item.imageUrl);
                 const brand = product?.Brand?.name || 'NOVA';
                 const variant = product?.variant || 'Default';
-                const itemPrice = Number(item.price || product?.price || 0);
+                const itemPrice = getCartItemPrice(item);
 
                 return (
                   <div key={item.cartItemId || item.productId || idx} className="bg-slate-50/70 border border-slate-100 rounded-2xl p-3 flex items-center gap-3">

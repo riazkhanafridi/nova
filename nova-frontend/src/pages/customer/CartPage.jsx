@@ -12,6 +12,7 @@ import {
   getGuestCart,
   removeGuestCartItem,
   updateGuestCartItem,
+  getCartItemPrice,
 } from '../../lib/cart';
 import { ShoppingCart, Trash2, Plus, Minus, ChevronLeft, Truck, MessageCircle, ShoppingBag } from 'lucide-react';
 
@@ -91,8 +92,7 @@ export default function CartPage() {
   };
 
   const subtotal = displayItems.reduce((sum, item) => {
-    const price = Number(user ? item.price : (item.Product?.price || item.price || 0));
-    return sum + price * Number(item.quantity || 1);
+    return sum + getCartItemPrice(item) * (Number(item.quantity) || 1);
   }, 0);
 
   // Coupon discount calculation
@@ -209,7 +209,7 @@ export default function CartPage() {
               const imgSrc = getMediaUrl(image?.imageUrl || item.imageUrl);
               const brand = product?.Brand?.name || 'NOVA';
               const name = product?.name || item.name;
-              const price = Number(user ? item.price : (product?.price || item.price || 0));
+              const price = getCartItemPrice(item);
               const comparePrice = item.comparePrice || product?.comparePrice;
               const variant = product?.variant || item.variant || 'Standard';
 

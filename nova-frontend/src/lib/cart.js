@@ -1,5 +1,24 @@
 export const GUEST_CART_KEY = 'nova_guest_cart';
 
+const toPriceNumber = (value) => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string' || !value.trim()) return null;
+
+  const normalized = value.trim().replace(/,/g, '').replace(/[^\d.-]/g, '');
+  if (!normalized || normalized === '.' || normalized === '-' || normalized === '-.') return null;
+  const price = Number(normalized);
+  return Number.isFinite(price) ? price : null;
+};
+
+export const getCartItemPrice = (item) => {
+  const candidates = [item?.price, item?.Product?.price, item?.product?.price];
+  for (const candidate of candidates) {
+    const price = toPriceNumber(candidate);
+    if (price !== null) return price;
+  }
+  return 0;
+};
+
 function emitGuestCartUpdate() {
   if (typeof window === 'undefined') return;
   const count = getGuestCartCount();

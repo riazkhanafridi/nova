@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button';
 import { Package, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import api from '../../lib/api';
 import { getMediaUrl } from '../../lib/media';
+import { getCartItemPrice } from '../../lib/cart';
 import { useToast } from '../../hooks/use-toast';
 
 const STATUS_COLOR = {
@@ -67,6 +68,8 @@ function OrderCard({ order, onCancel }) {
             {order.OrderItems?.map(item => {
               const image = item.Product?.ProductImages?.find(i => i.isPrimary) || item.Product?.ProductImages?.[0];
               const imgSrc = getMediaUrl(image?.imageUrl);
+              const itemPrice = getCartItemPrice(item);
+              const quantity = Number(item.quantity) || 1;
               return (
                 <div key={item.orderItemId} className="flex gap-3 items-center">
                   <div className="w-12 h-12 rounded-xl overflow-hidden bg-neutral-200 shrink-0">
@@ -74,9 +77,9 @@ function OrderCard({ order, onCancel }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold line-clamp-1 text-neutral-900">{item.productName}</p>
-                    <p className="text-xs text-neutral-500">Qty: {item.quantity} × QAR {Number(item.price).toFixed(2)}</p>
+                    <p className="text-xs text-neutral-500">Qty: {quantity} × QAR {itemPrice.toFixed(2)}</p>
                   </div>
-                  <span className="text-sm font-bold text-neutral-900">QAR {(Number(item.price) * item.quantity).toFixed(2)}</span>
+                  <span className="text-sm font-bold text-neutral-900">QAR {(itemPrice * quantity).toFixed(2)}</span>
                 </div>
               );
             })}

@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { useFetch } from '../../hooks/useFetch';
 import { useAuth } from '../../context/AuthContext';
 import { getMediaUrl } from '../../lib/media';
-import { getGuestCart, getGuestCartCount, updateGuestCartItem, removeGuestCartItem } from '../../lib/cart';
+import { getGuestCart, updateGuestCartItem, removeGuestCartItem, getCartItemPrice } from '../../lib/cart';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ShoppingBag, MessageCircle, X } from 'lucide-react';
@@ -40,8 +40,7 @@ export default function CartDrawer({ open, onOpenChange }) {
     : guestCartItems;
 
   const subtotal = items.reduce((sum, item) => {
-    const price = user ? Number(item.price) : Number(item.price);
-    return sum + (price * item.quantity);
+    return sum + getCartItemPrice(item) * (Number(item.quantity) || 1);
   }, 0);
 
   const handleUpdateQty = async (item, newQty) => {
@@ -119,7 +118,7 @@ export default function CartDrawer({ open, onOpenChange }) {
               const imgSrc = getMediaUrl(image?.imageUrl || product?.imageUrl);
               const brand = product?.Brand?.name || 'NOVA';
               const name = product?.name || item.name;
-              const price = Number(user ? item.price : item.price);
+              const price = getCartItemPrice(item);
 
               return (
                 <div key={item.cartItemId || item.productId || idx} className="bg-slate-50/80 border border-slate-100 rounded-2xl p-3.5 flex items-center gap-3.5">
@@ -170,7 +169,7 @@ export default function CartDrawer({ open, onOpenChange }) {
                       <Trash2 className="h-4 w-4" />
                     </button>
                     <span className="text-xs font-black text-slate-900 whitespace-nowrap">
-                      QAR {(price * item.quantity).toLocaleString()}
+                      QAR {(price * (Number(item.quantity) || 1)).toLocaleString()}
                     </span>
                   </div>
                 </div>
