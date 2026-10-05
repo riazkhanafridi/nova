@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { useToast } from '../../hooks/use-toast';
 import api from '../../lib/api';
-import { Eye, Loader2, Search, Truck, Clock3, CircleX, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, Loader2, Search, Truck, Clock3, CircleX, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
 
 const ORDER_STATUSES = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
+const PAYMENT_STATUSES = ['PENDING', 'PAID', 'FAILED', 'REFUNDED'];
 const normalizeStatus = value => String(value || '').toUpperCase();
 const STATUS_COLOR = {
   PENDING: 'bg-[#fff0e7] text-[#bd4c13]', CONFIRMED: 'bg-[#edf3ff] text-[#365ed0]',
@@ -54,6 +55,7 @@ export default function AdminOrders() {
   const summary = useMemo(() => ({
     delivered: allOrders.filter(order => normalizeStatus(order.orderStatus) === 'DELIVERED').length,
     pending: allOrders.filter(order => ['PENDING', 'CONFIRMED'].includes(normalizeStatus(order.orderStatus))).length,
+    pendingPayments: allOrders.filter(order => normalizeStatus(order.paymentStatus) === 'PENDING').length,
     cancelled: allOrders.filter(order => ['CANCELLED', 'REFUNDED'].includes(normalizeStatus(order.orderStatus))).length,
   }), [allOrders]);
 
@@ -92,15 +94,28 @@ export default function AdminOrders() {
     } finally { setUpdating(null); }
   };
 
+  const updatePaymentStatus = async (orderId, status) => {
+    setUpdating(orderId);
+    try {
+      await api.patch(`/orders/${orderId}/status`, { paymentStatus: status });
+      toast({ title: 'Payment status updated' });
+      setViewOrder(current => current ? { ...current, paymentStatus: status } : current);
+      refetch();
+    } catch (err) {
+      toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message });
+    } finally { setUpdating(null); }
+  };
+
   return <div className="mx-auto max-w-[1180px] space-y-3">
     <div className="flex items-end justify-between gap-3">
       <div><div className="flex items-center gap-1.5 text-[9px] text-[#7f838a]"><span>Dashboard</span><ChevronRight className="h-3 w-3" /><span className="text-[#ef5a18]">Orders</span></div><h1 className="mt-1 text-[18px] font-semibold text-[#24262b]">Orders Directory</h1></div>
       <p className="hidden text-[10px] text-[#858991] sm:block">{Number(totalOrders).toLocaleString()} total orders</p>
     </div>
 
-    <section className="grid gap-2.5 sm:grid-cols-3">
+    <section className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
       <SummaryCard title="Delivered Orders" count={summary.delivered.toLocaleString()} note="Among the latest 100 orders" status="DELIVERED" icon={Truck} />
       <SummaryCard title="Pending Orders" count={summary.pending.toLocaleString()} note="Awaiting payment or confirmation" status="PENDING" icon={Clock3} />
+      <SummaryCard title="Pending Payments" count={summary.pendingPayments.toLocaleString()} note="Orders awaiting payment" status="PENDING" icon={CreditCard} />
       <SummaryCard title="Canceled Orders" count={summary.cancelled.toLocaleString()} note="Canceled or refunded orders" status="CANCELLED" icon={CircleX} />
     </section>
 
@@ -146,7 +161,7 @@ export default function AdminOrders() {
       <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto rounded-[16px] border-[#e6e7ea]">
         <DialogHeader><DialogTitle className="text-lg font-semibold text-[#24262b]">Order {viewOrder?.orderNumber || ''}</DialogTitle></DialogHeader>
         {viewOrder && <div className="space-y-4 text-sm">
-          <div className="grid grid-cols-2 gap-3 rounded-[10px] bg-[#f8f9fa] p-3 text-xs"><div><p className="text-[10px] text-[#858991]">Customer</p><p className="mt-1 font-medium">{customerOf(viewOrder).fullName || '—'}</p><p className="text-[10px] text-[#858991]">{customerOf(viewOrder).email}</p></div><div><p className="text-[10px] text-[#858991]">Order date</p><p className="mt-1 font-medium">{formatDate(viewOrder.createdAt)}</p></div><div><p className="text-[10px] text-[#858991]">Payment</p><p className="mt-1 font-medium">{normalizeStatus(viewOrder.paymentStatus).toLowerCase()}</p></div><div><p className="text-[10px] text-[#858991]">Update order status</p><Select value={normalizeStatus(viewOrder.orderStatus)} onValueChange={value => updateStatus(viewOrder.orderId, value)} disabled={updating === viewOrder.orderId}><SelectTrigger className="mt-1 h-8 bg-white text-xs capitalize"><SelectValue />{updating === viewOrder.orderId && <Loader2 className="ml-2 h-3 w-3 animate-spin" />}</SelectTrigger><SelectContent>{ORDER_STATUSES.map(status => <SelectItem key={status} value={status}>{status.toLowerCase()}</SelectItem>)}</SelectContent></Select></div></div>
+          <div className="grid grid-cols-2 gap-3 rounded-[10px] bg-[#f8f9fa] p-3 text-xs"><div><p className="text-[10px] text-[#858991]">Customer</p><p className="mt-1 font-medium">{customerOf(viewOrder).fullName || '—'}</p><p className="text-[10px] text-[#858991]">{customerOf(viewOrder).email}</p></div><div><p className="text-[10px] text-[#858991]">Order date</p><p className="mt-1 font-medium">{formatDate(viewOrder.createdAt)}</p></div><div><p className="text-[10px] text-[#858991]">Update payment status</p><Select value={normalizeStatus(viewOrder.paymentStatus) || 'PENDING'} onValueChange={value => updatePaymentStatus(viewOrder.orderId, value)} disabled={updating === viewOrder.orderId}><SelectTrigger className="mt-1 h-8 bg-white text-xs capitalize"><SelectValue />{updating === viewOrder.orderId && <Loader2 className="ml-2 h-3 w-3 animate-spin" />}</SelectTrigger><SelectContent>{PAYMENT_STATUSES.map(status => <SelectItem key={status} value={status}>{status.charAt(0) + status.slice(1).toLowerCase()}</SelectItem>)}</SelectContent></Select></div><div><p className="text-[10px] text-[#858991]">Update order status</p><Select value={normalizeStatus(viewOrder.orderStatus)} onValueChange={value => updateStatus(viewOrder.orderId, value)} disabled={updating === viewOrder.orderId}><SelectTrigger className="mt-1 h-8 bg-white text-xs capitalize"><SelectValue />{updating === viewOrder.orderId && <Loader2 className="ml-2 h-3 w-3 animate-spin" />}</SelectTrigger><SelectContent>{ORDER_STATUSES.map(status => <SelectItem key={status} value={status}>{status.toLowerCase()}</SelectItem>)}</SelectContent></Select></div></div>
           {viewOrder.shippingAddress && <div className="rounded-[10px] border border-[#eceef0] p-3 text-xs"><p className="mb-1 text-[10px] text-[#858991]">Shipping address</p><p className="font-medium">{[viewOrder.shippingAddress.street, viewOrder.shippingAddress.city, viewOrder.shippingAddress.country].filter(Boolean).join(', ')}</p></div>}
           <div><h3 className="mb-2 text-xs font-semibold">Products</h3><div className="divide-y divide-[#eff0f2]">{itemsOf(viewOrder).map(item => <div key={item.orderItemId} className="flex items-center justify-between py-2 text-xs"><div><p className="font-medium">{item.productName}</p><p className="text-[10px] text-[#858991]">Quantity: {item.quantity}</p></div><p className="font-medium">{formatMoney(item.totalPrice ?? (Number(item.unitPrice || item.price) * Number(item.quantity || 0)))}</p></div>)}</div></div>
           <div className="border-t border-[#eceef0] pt-3 text-xs"><div className="flex justify-between text-[#858991]"><span>Subtotal</span><span>{formatMoney(viewOrder.subTotal)}</span></div><div className="mt-2 flex justify-between text-base font-semibold"><span>Total</span><span>{formatMoney(viewOrder.totalAmount)}</span></div></div>
