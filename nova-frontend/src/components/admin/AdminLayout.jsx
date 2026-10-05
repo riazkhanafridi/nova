@@ -10,7 +10,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, Users, Tag, Settings,
   Bell, Search, Menu, LogOut, Award, PanelLeftClose, PanelLeftOpen, ChartNoAxesColumn, Wrench
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { getMediaUrl } from '../../lib/media';
 
@@ -44,16 +44,24 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { data: notifData } = useFetch('/notifications');
+  const { data: ordersData, refetch: refetchOrders } = useFetch('/orders', { params: { page: 1, limit: 20 } });
+  const recentOrders = useMemo(() => {
+    const payload = ordersData?.data ?? ordersData;
+    const orders = Array.isArray(payload?.orders)
+      ? payload.orders
+      : Array.isArray(payload?.data?.orders)
+        ? payload.data.orders
+        : Array.isArray(payload)
+          ? payload
+          : [];
+    return [...orders].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [ordersData]);
+  const pendingOrdersCount = recentOrders.filter(order => String(order.orderStatus || '').toLowerCase() === 'pending').length;
 
-  const notifications = Array.isArray(notifData?.data)
-    ? notifData.data
-    : Array.isArray(notifData?.notifications)
-      ? notifData.notifications
-      : Array.isArray(notifData)
-        ? notifData
-        : [];
-  const unreadCount = notifications.filter(n => !n?.isRead)?.length || 0;
+  useEffect(() => {
+    const intervalId = window.setInterval(() => refetchOrders(), 30000);
+    return () => window.clearInterval(intervalId);
+  }, [refetchOrders]);
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
@@ -99,10 +107,34 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex flex-1 items-center justify-end gap-3">
-            <Button variant="ghost" size="icon" className="relative rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900">
-              <Bell className="h-[18px] w-[18px]" />
-              {unreadCount > 0 && <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center border-0 bg-red-500 p-0 text-[9px] text-white">{unreadCount}</Badge>}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Order notifications" className="relative rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                  <Bell className="h-[18px] w-[18px]" />
+                  {pendingOrdersCount > 0 && <Badge className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center border-0 bg-red-500 px-1 text-[9px] text-white">{pendingOrdersCount}</Badge>}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>Recent orders</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {recentOrders.length ? recentOrders.slice(0, 5).map(order => (
+                  <DropdownMenuItem key={order.orderId} asChild className="cursor-pointer items-start py-3">
+                    <Link to="/admin/orders" className="flex flex-col gap-1">
+                      <span className="font-semibold text-slate-900">{order.orderNumber || `Order #${order.orderId}`}</span>
+                      <span className="text-xs text-slate-500">
+                        {order.User?.fullName || order.user?.fullName || 'Customer'} · {String(order.orderStatus || 'pending').toLowerCase()} · {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'Just now'}
+                      </span>
+                    </Link>
+                  </DropdownMenuItem>
+                )) : (
+                  <div className="px-2 py-5 text-center text-sm text-slate-500">No orders yet</div>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="justify-center font-semibold text-blue-600">
+                  <Link to="/admin/orders">View all orders</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link to="/" className="hidden rounded-lg px-3 py-2 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:block">View store</Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
