@@ -14,6 +14,7 @@ import bannerRoutes from "./bannerRoutes.js";
 import dashboardRoutes from "./dashboardRoutes.js";
 import serviceRoutes from "./serviceRoutes.js";
 import paymentRoutes from "./paymentRoutes.js";
+import contactRoutes from "./contactRoutes.js";
 
 const router = express.Router();
 
@@ -38,5 +39,6 @@ router.use("/banners", bannerRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/services", serviceRoutes);
 router.use("/payment", paymentRoutes);
+router.use("/contact", contactRoutes);
 
 export default router;

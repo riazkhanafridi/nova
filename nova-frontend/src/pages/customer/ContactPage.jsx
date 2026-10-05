@@ -1,5 +1,7 @@
-import React from 'react';
+import { useState } from 'react';
 import { MessageCircleMore, PhoneCall, Mail, MapPin, Clock3, Send, ChevronDown, MessageCircle } from 'lucide-react';
+import { useToast } from '../../hooks/use-toast';
+import api from '../../lib/api';
 
 const contactCards = [
   {
@@ -32,6 +34,37 @@ const contactCards = [
 ];
 
 export default function ContactPage() {
+  const { toast } = useToast();
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      fullName: formData.get('fullName'),
+      phone: formData.get('phone'),
+      email: formData.get('email'),
+      topic: formData.get('topic'),
+      message: formData.get('message'),
+    };
+
+    setSending(true);
+    try {
+      const { data } = await api.post('/contact', payload);
+      toast({ title: 'Message sent', description: data?.message || 'We will get back to you soon.' });
+      form.reset();
+    } catch (err) {
+      toast({
+        variant: 'destructive',
+        title: 'Could not send message',
+        description: err.response?.data?.message || 'Please try again in a moment.',
+      });
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-[1280px] bg-[#f3f2f1] px-4 py-8 md:px-6 md:py-12">
       <section className="rounded-[2rem] bg-gradient-to-r from-[#f2d9c3] via-[#f09d56] to-[#f26a1b] p-8 md:p-12 lg:p-14 shadow-sm">
@@ -75,7 +108,7 @@ export default function ContactPage() {
           <h2 className="text-[2.1rem] font-black tracking-[-0.05em] text-[#111827]">Send Us a Message</h2>
           <p className="mt-4 text-[0.98rem] text-[#4b5563]">Fill out the form and we&apos;ll get back to you within 24 hours.</p>
 
-          <form className="mt-8 space-y-6">
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-[0.62rem] font-bold uppercase tracking-[0.18em] text-[#4b5563]">
@@ -83,6 +116,9 @@ export default function ContactPage() {
                 </label>
                 <input
                   type="text"
+                  name="fullName"
+                  required
+                  maxLength={150}
                   placeholder="Ahmed Al-Thani"
                   className="h-14 w-full rounded-[1rem] border border-[#e5e7eb] bg-[#f3f4f6] px-4 text-[0.95rem] text-[#111827] outline-none placeholder:text-[#111827]/70 focus:border-[#f26a1b]"
                 />
@@ -94,6 +130,8 @@ export default function ContactPage() {
                 </label>
                 <input
                   type="text"
+                  name="phone"
+                  maxLength={40}
                   placeholder="+974 5555 1234"
                   className="h-14 w-full rounded-[1rem] border border-[#e5e7eb] bg-[#f3f4f6] px-4 text-[0.95rem] text-[#111827] outline-none placeholder:text-[#111827]/70 focus:border-[#f26a1b]"
                 />
@@ -106,6 +144,9 @@ export default function ContactPage() {
               </label>
               <input
                 type="email"
+                name="email"
+                required
+                maxLength={254}
                 placeholder="ahmed@example.com"
                 className="h-14 w-full rounded-[1rem] border border-[#e5e7eb] bg-[#f3f4f6] px-4 text-[0.95rem] text-[#111827] outline-none placeholder:text-[#111827]/70 focus:border-[#f26a1b]"
               />
@@ -114,6 +155,7 @@ export default function ContactPage() {
             <div className="relative">
               <select
                 defaultValue=""
+                name="topic"
                 className="h-14 w-full appearance-none rounded-[1rem] border border-[#e5e7eb] bg-[#f3f4f6] px-4 pr-12 text-[0.95rem] text-[#111827] outline-none placeholder:text-[#111827]/70 focus:border-[#f26a1b]"
               >
                 <option value="" disabled hidden>Select a topic...</option>
@@ -131,6 +173,9 @@ export default function ContactPage() {
               </label>
               <textarea
                 rows={5}
+                name="message"
+                required
+                maxLength={10000}
                 placeholder="Tell us how we can help you..."
                 className="w-full resize-none rounded-[1rem] border border-[#e5e7eb] bg-[#f3f4f6] px-4 py-4 text-[0.95rem] text-[#111827] outline-none placeholder:text-[#111827]/70 focus:border-[#f26a1b]"
               />
@@ -138,10 +183,11 @@ export default function ContactPage() {
 
             <button
               type="submit"
+              disabled={sending}
               className="flex h-16 w-full items-center justify-center gap-3 rounded-[1rem] bg-gradient-to-r from-[#f26a1b] to-[#f58c35] text-[1.05rem] font-bold text-white shadow-[0_12px_28px_rgba(242,106,27,0.23)] transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-105"
             >
-              <Send className="h-5 w-5" />
-              Send Message
+              <Send className={`h-5 w-5 ${sending ? 'animate-pulse' : ''}`} />
+              {sending ? 'Sending...' : 'Send Message'}
             </button>
           </form>
         </div>

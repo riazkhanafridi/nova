@@ -9,7 +9,7 @@ import { useToast } from '../../hooks/use-toast';
 import api from '../../lib/api';
 import { Search, Users, UserPlus, UserRoundCheck, Repeat2, Download, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 5;
 
 function unwrapUsers(response) {
   const payload = response?.data ?? response;
@@ -83,7 +83,8 @@ export default function AdminUsers() {
   }), [users, orderStats]);
 
   const pageCount = Math.max(1, Math.ceil(customerRows.length / PAGE_SIZE));
-  const pageUsers = customerRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const currentPage = Math.min(page, pageCount);
+  const pageUsers = customerRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', role: 'customer', status: 'active', password: '' });
 
   const openCreate = () => {
@@ -121,6 +122,7 @@ export default function AdminUsers() {
     try {
       await api.delete(`/auth/users/${userId}`);
       toast({ title: 'Customer deleted' });
+      setPage(Math.min(currentPage, Math.max(1, Math.ceil((customerRows.length - 1) / PAGE_SIZE))));
       refetch();
     } catch (err) {
       toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message });
@@ -182,7 +184,7 @@ export default function AdminUsers() {
           </tbody>
         </table>
       </div>
-      <div className="flex flex-col items-center justify-between gap-2 border-t border-[#f0f1f3] px-4 py-2.5 sm:flex-row"><p className="text-[9px] text-[#858991]">Showing {customerRows.length ? (page - 1) * PAGE_SIZE + 1 : 0}–{Math.min(page * PAGE_SIZE, customerRows.length)} of {customerRows.length.toLocaleString()} customers</p><div className="flex items-center gap-1.5"><Button type="button" variant="outline" disabled={page <= 1} onClick={() => setPage(value => Math.max(1, value - 1))} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]"><ChevronLeft className="mr-1 h-3 w-3" />Previous</Button><span className="px-1 text-[10px] text-[#686c73]">{page} / {pageCount}</span><Button type="button" variant="outline" disabled={page >= pageCount} onClick={() => setPage(value => Math.min(pageCount, value + 1))} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Next<ChevronRight className="ml-1 h-3 w-3" /></Button></div></div>
+      <div className="flex flex-col items-center justify-between gap-2 border-t border-[#f0f1f3] px-4 py-2.5 sm:flex-row"><p className="text-[9px] text-[#858991]">Showing {customerRows.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0}–{Math.min(currentPage * PAGE_SIZE, customerRows.length)} of {customerRows.length.toLocaleString()} customers</p><div className="flex items-center gap-1.5"><Button type="button" variant="outline" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]"><ChevronLeft className="mr-1 h-3 w-3" />Previous</Button><span className="px-1 text-[10px] text-[#686c73]">{currentPage} / {pageCount}</span><Button type="button" variant="outline" disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Next<ChevronRight className="ml-1 h-3 w-3" /></Button></div></div>
     </section>
 
     <Dialog open={open} onOpenChange={setOpen}>

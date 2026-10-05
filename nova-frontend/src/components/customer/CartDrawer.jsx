@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { useFetch } from '../../hooks/useFetch';
 import { useAuth } from '../../context/AuthContext';
 import { getMediaUrl } from '../../lib/media';
-import { getGuestCart, updateGuestCartItem, removeGuestCartItem, getCartItemPrice } from '../../lib/cart';
+import { getGuestCart, updateGuestCartItem, removeGuestCartItem, getCartItemPrice, notifyCartUpdated } from '../../lib/cart';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ShoppingBag, MessageCircle, X } from 'lucide-react';
@@ -48,6 +48,7 @@ export default function CartDrawer({ open, onOpenChange }) {
     if (user) {
       try {
         await api.patch(`/cart/item/${item.cartItemId}`, { quantity: newQty });
+        notifyCartUpdated();
         refetch();
       } catch (err) {
         toast({ variant: 'destructive', title: 'Error', description: 'Failed to update quantity.' });
@@ -62,6 +63,7 @@ export default function CartDrawer({ open, onOpenChange }) {
     if (user) {
       try {
         await api.delete(`/cart/item/${item.cartItemId}`);
+        notifyCartUpdated();
         refetch();
       } catch (err) {
         toast({ variant: 'destructive', title: 'Error', description: 'Failed to remove item.' });

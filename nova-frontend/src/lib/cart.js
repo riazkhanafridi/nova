@@ -25,6 +25,12 @@ function emitGuestCartUpdate() {
   window.dispatchEvent(new CustomEvent('nova-cart-count-changed', { detail: { count } }));
 }
 
+export function notifyCartUpdated() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('nova-cart-updated'));
+  }
+}
+
 export function getGuestCart() {
   if (typeof window === 'undefined') return [];
 

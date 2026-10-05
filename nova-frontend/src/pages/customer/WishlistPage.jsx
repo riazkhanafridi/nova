@@ -5,6 +5,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { useToast } from '../../hooks/use-toast';
 import api from '../../lib/api';
 import { getMediaUrl } from '../../lib/media';
+import { notifyCartUpdated } from '../../lib/cart';
 
 export default function WishlistPage() {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export default function WishlistPage() {
   const addToCart = async (product) => {
     try {
       await api.post('/cart/add', { productId: product.productId, quantity: 1 });
+      notifyCartUpdated();
       toast({ title: 'Added to cart!', description: product.name });
     } catch (err) {
       toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message || 'Failed to add to cart' });

@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { useToast } from '../../hooks/use-toast';
 import api from '../../lib/api';
 import { getMediaUrl } from '../../lib/media';
-import { addGuestCartItem } from '../../lib/cart';
+import { addGuestCartItem, notifyCartUpdated } from '../../lib/cart';
 import {
   ShoppingCart, ShoppingBag, Star, ChevronLeft, Plus, Minus,
   Package, Heart, Share2, Check, MessageCircle, Truck, ShieldCheck, RefreshCw, Info, MessageSquare
@@ -145,6 +145,7 @@ export default function ProductDetailPage() {
         addGuestCartItem(product, quantity);
       } else {
         await api.post('/cart/add', { productId: product.productId, quantity });
+        notifyCartUpdated();
       }
       toast({ title: 'Added to cart!', description: `${quantity}× ${product.name}` });
       setAddedToCart(true);

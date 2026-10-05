@@ -22,6 +22,8 @@ export default function AdminCoupons() {
   const { data, loading, refetch } = useFetch('/coupons');
   const coupons = Array.isArray(data?.data)
     ? data.data
+    : Array.isArray(data?.data?.coupons)
+      ? data.data.coupons
     : Array.isArray(data)
       ? data
       : Array.isArray(data?.coupons)
@@ -30,7 +32,7 @@ export default function AdminCoupons() {
 
   const [form, setForm] = useState({
     code: '', discountType: 'percentage', discountValue: '', minOrderAmount: '',
-    maxDiscountAmount: '', usageLimit: '', validFrom: '', validUntil: '', isActive: true,
+    maxDiscountAmount: '', usageLimit: '', validUntil: '', isActive: true,
   });
 
   const generateCode = () => {
@@ -39,14 +41,22 @@ export default function AdminCoupons() {
     setForm(p => ({ ...p, code }));
   };
 
-  const openCreate = () => { setEditItem(null); setForm({ code: '', discountType: 'percentage', discountValue: '', minOrderAmount: '', maxDiscountAmount: '', usageLimit: '', validFrom: '', validUntil: '', isActive: true }); setOpen(true); };
-  const openEdit = (c) => { setEditItem(c); setForm({ code: c.code, discountType: c.discountType, discountValue: c.discountValue, minOrderAmount: c.minOrderAmount || '', maxDiscountAmount: c.maxDiscountAmount || '', usageLimit: c.usageLimit || '', validFrom: c.validFrom ? c.validFrom.slice(0, 10) : '', validUntil: c.validUntil ? c.validUntil.slice(0, 10) : '', isActive: c.isActive }); setOpen(true); };
+  const openCreate = () => { setEditItem(null); setForm({ code: '', discountType: 'percentage', discountValue: '', minOrderAmount: '', maxDiscountAmount: '', usageLimit: '', validUntil: '', isActive: true }); setOpen(true); };
+  const openEdit = (c) => { setEditItem(c); setForm({ code: c.code, discountType: c.type === 'PERCENTAGE' ? 'percentage' : 'fixed_amount', discountValue: c.value, minOrderAmount: c.minOrderAmount || '', maxDiscountAmount: c.maxDiscountAmount || '', usageLimit: c.usageLimit || '', validUntil: c.expiresAt ? c.expiresAt.slice(0, 10) : '', isActive: c.isActive }); setOpen(true); };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form };
-      Object.keys(payload).forEach(k => payload[k] === '' && delete payload[k]);
+      const payload = {
+        code: form.code.trim().toUpperCase(),
+        type: form.discountType === 'percentage' ? 'PERCENTAGE' : 'FIXED',
+        value: Number(form.discountValue),
+        minOrderAmount: Number(form.minOrderAmount || 0),
+        maxDiscountAmount: form.maxDiscountAmount ? Number(form.maxDiscountAmount) : null,
+        usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
+        isActive: form.isActive,
+        expiresAt: form.validUntil || null,
+      };
       if (editItem) {
         await api.patch(`/coupons/${editItem.couponId}`, payload);
         toast({ title: 'Coupon updated!' });
@@ -104,8 +114,8 @@ export default function AdminCoupons() {
                     </button>
                   </div>
                   <div className="mt-1.5 flex flex-wrap gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TYPE_COLOR[c.discountType] || 'bg-slate-100 text-slate-700'}`}>
-                      {c.discountType === 'percentage' ? `${c.discountValue}% off` : `$${Number(c.discountValue).toFixed(2)} off`}
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TYPE_COLOR[c.type === 'PERCENTAGE' ? 'percentage' : 'fixed_amount'] || 'bg-slate-100 text-slate-700'}`}>
+                      {c.type === 'PERCENTAGE' ? `${c.value}% off` : `QAR ${Number(c.value).toFixed(2)} off`}
                     </span>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>
                       {c.isActive ? 'Active' : 'Inactive'}
@@ -120,8 +130,7 @@ export default function AdminCoupons() {
               <div className="grid grid-cols-2 gap-2 text-xs text-slate-500">
                 {c.minOrderAmount && <div>Min order: <span className="font-medium text-slate-800">${Number(c.minOrderAmount).toFixed(2)}</span></div>}
                 {c.usageLimit && <div>Limit: <span className="font-medium text-slate-800">{c.usageCount || 0}/{c.usageLimit}</span></div>}
-                {c.validFrom && <div>From: <span className="font-medium text-slate-800">{new Date(c.validFrom).toLocaleDateString()}</span></div>}
-                {c.validUntil && <div>Until: <span className="font-medium text-slate-800">{new Date(c.validUntil).toLocaleDateString()}</span></div>}
+                {c.expiresAt && <div>Until: <span className="font-medium text-slate-800">{new Date(c.expiresAt).toLocaleDateString()}</span></div>}
               </div>
             </div>
           ))}
@@ -155,7 +164,6 @@ export default function AdminCoupons() {
                   <SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5"><Label>Valid From</Label><Input className="border-slate-200 bg-white" type="date" value={form.validFrom} onChange={e => setForm(p => ({ ...p, validFrom: e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Valid Until</Label><Input className="border-slate-200 bg-white" type="date" value={form.validUntil} onChange={e => setForm(p => ({ ...p, validUntil: e.target.value }))} /></div>
             </div>
           </div>

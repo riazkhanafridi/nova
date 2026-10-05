@@ -38,7 +38,10 @@ export default function CustomerLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const [guestCartCount, setGuestCartCountState] = useState(getGuestCartCount());
   const { data: cartData, refetch: refetchCart } = useFetch(user ? '/cart' : null, { enabled: !!user });
-  const cartCount = user ? (cartData?.data?.CartItems?.length || 0) : guestCartCount;
+  const cartItems = cartData?.data?.CartItems || [];
+  const cartCount = user
+    ? cartItems.reduce((total, item) => total + (Number(item.quantity) || 0), 0)
+    : guestCartCount;
 
   useEffect(() => {
     const handleCartCleared = () => {
@@ -47,7 +50,11 @@ export default function CustomerLayout() {
         refetchCart();
       }
     };
+    const handleCartUpdated = () => {
+      if (user) refetchCart();
+    };
     window.addEventListener('nova-cart-cleared', handleCartCleared);
+    window.addEventListener('nova-cart-updated', handleCartUpdated);
 
     if (!user) {
       const unsubscribe = subscribeToGuestCartCount(setGuestCartCountState);
@@ -55,13 +62,15 @@ export default function CustomerLayout() {
       return () => {
         unsubscribe();
         window.removeEventListener('nova-cart-cleared', handleCartCleared);
+        window.removeEventListener('nova-cart-updated', handleCartUpdated);
       };
     }
     setGuestCartCountState(0);
     return () => {
       window.removeEventListener('nova-cart-cleared', handleCartCleared);
+      window.removeEventListener('nova-cart-updated', handleCartUpdated);
     };
-  }, [user]);
+  }, [user, refetchCart]);
 
   const handleLogout = async () => {
     await logout();

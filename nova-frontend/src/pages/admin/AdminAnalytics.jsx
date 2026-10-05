@@ -13,6 +13,7 @@ function listFrom(response, key) {
 }
 
 const normalizeStatus = value => String(value || '').toUpperCase();
+const PAGE_SIZE = 5;
 const formatMoney = value => `QAR ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 const formatDate = value => value ? new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
 const toDateInput = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -113,6 +114,7 @@ export default function AdminAnalytics() {
   const defaultStartDate = new Date(today); defaultStartDate.setDate(today.getDate() - 13);
   const [dateRange, setDateRange] = useState({ start: toDateInput(defaultStartDate), end: defaultEnd });
   const [dateDialogOpen, setDateDialogOpen] = useState(false);
+  const [ordersPage, setOrdersPage] = useState(1);
   const range = Math.max(1, Math.round((fromDateInput(dateRange.end) - fromDateInput(dateRange.start)) / 86400000) + 1);
   const { data: overviewResponse, loading: overviewLoading } = useFetch('/dashboard/overview');
   const { data: analyticsResponse, loading: analyticsLoading } = useFetch('/dashboard/analytics');
@@ -141,7 +143,9 @@ export default function AdminAnalytics() {
   const paidOrders = orders.filter(order => normalizeStatus(order.paymentStatus) === 'PAID');
   const paidOrderRate = orders.length ? Math.round(paidOrders.length / orders.length * 100) : 0;
   const avgOrderValue = paidOrders.length ? paidOrders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0) / paidOrders.length : 0;
-  const recentOrders = orders.slice(0, 6);
+  const ordersPageCount = Math.max(1, Math.ceil(orders.length / PAGE_SIZE));
+  const currentOrdersPage = Math.min(ordersPage, ordersPageCount);
+  const recentOrders = orders.slice((currentOrdersPage - 1) * PAGE_SIZE, currentOrdersPage * PAGE_SIZE);
 
   return <div className="mx-auto max-w-[1180px] space-y-3">
     <div className="flex items-end justify-between gap-3">
@@ -181,6 +185,7 @@ export default function AdminAnalytics() {
           return <tr key={order.orderId} className="border-t border-[#f0f1f3] text-[9px] text-[#35373c]"><td className="whitespace-nowrap px-3 py-2.5 font-semibold">{order.orderNumber || `#${order.orderId}`}</td><td className="px-3 py-2.5">{customer.fullName || customer.email || '—'}</td><td className="max-w-[160px] truncate px-3 py-2.5">{items[0]?.productName || '—'}</td><td className="whitespace-nowrap px-3 py-2.5 font-semibold">{formatMoney(order.totalAmount)}</td><td className="px-3 py-2.5"><span className={`rounded-full px-2 py-1 text-[8px] font-semibold capitalize ${color}`}>{status.toLowerCase()}</span></td><td className="whitespace-nowrap px-3 py-2.5 text-[#858991]">{order.createdAt ? new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td><td className="px-3 py-2.5"><Link to="/admin/orders" aria-label={`View ${order.orderNumber}`} className="inline-flex h-6 w-7 items-center justify-center rounded-full border border-[#e1e2e5] text-[#686c73]"><Eye className="h-3 w-3" /></Link></td></tr>;
         }) : <tr><td colSpan={7} className="px-3 py-8 text-center text-[10px] text-[#858991]">No recent orders.</td></tr>}
       </tbody></table></div>
+      <div className="flex flex-col items-center justify-between gap-2 border-t border-[#f0f1f3] px-4 py-2.5 sm:flex-row"><p className="text-[9px] text-[#858991]">Showing {orders.length ? (currentOrdersPage - 1) * PAGE_SIZE + 1 : 0}–{Math.min(currentOrdersPage * PAGE_SIZE, orders.length)} of {orders.length.toLocaleString()} loaded orders</p><div className="flex items-center gap-1.5"><Button type="button" variant="outline" disabled={currentOrdersPage <= 1 || ordersLoading} onClick={() => setOrdersPage(currentOrdersPage - 1)} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Previous</Button><span className="px-1 text-[10px] text-[#686c73]">{currentOrdersPage} / {ordersPageCount}</span><Button type="button" variant="outline" disabled={currentOrdersPage >= ordersPageCount || ordersLoading} onClick={() => setOrdersPage(currentOrdersPage + 1)} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Next</Button></div></div>
     </section>
     <p className="flex items-center gap-1 text-[8px] text-[#91949b]"><BarChart3 className="h-3 w-3" />Conversion rate and visit-based metrics aren’t available because the app does not collect site analytics.</p>
     {dateDialogOpen && <DateRangeDialog initialStart={dateRange.start} initialEnd={dateRange.end} onClose={() => setDateDialogOpen(false)} onApply={(start, end) => { setDateRange({ start, end }); setDateDialogOpen(false); }} />}

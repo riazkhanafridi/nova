@@ -1,6 +1,7 @@
 import express from "express";
 import {
   validateCoupon,
+  getAvailableCoupons,
   getAllCoupons,
   createCoupon,
   updateCoupon,
@@ -12,8 +13,9 @@ import { USER_ROLES } from "../config/constants.js";
 
 const router = express.Router();
 
-// Protected routes (Customer & Admin)
-router.post("/validate", auth, validateCoupon);
+// Coupon validity is public so guest customers can validate codes in their cart.
+router.post("/validate", validateCoupon);
+router.get("/available", getAvailableCoupons);
 
 // Admin only routes
 router.use(auth, roleAuthorization([USER_ROLES.admin]));

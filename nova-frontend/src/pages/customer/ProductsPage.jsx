@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 import { useToast } from '../../hooks/use-toast';
 import { getMediaUrl } from '../../lib/media';
-import { addGuestCartItem } from '../../lib/cart';
+import { addGuestCartItem, notifyCartUpdated } from '../../lib/cart';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -59,6 +59,7 @@ function ProductCard({ product }) {
     }
     try {
       await api.post('/cart/add', { productId: product.productId, quantity: 1 });
+      notifyCartUpdated();
       toast({ title: 'Added to cart!', description: product.name });
     } catch (err) {
       toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message || 'Failed to add to cart' });
@@ -251,4 +252,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-

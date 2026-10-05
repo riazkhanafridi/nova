@@ -15,6 +15,7 @@ import Coupon from "../models/Coupon.js";
 import Notification from "../models/Notification.js";
 import Banner from "../models/Banner.js";
 import Service from "../models/Service.js";
+import ContactMessage from "../models/ContactMessage.js";
 
 const dbInit = async () => {
   try {

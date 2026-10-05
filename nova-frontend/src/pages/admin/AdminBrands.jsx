@@ -10,7 +10,7 @@ import api from '../../lib/api';
 import { getMediaUrl } from '../../lib/media';
 import { Plus, Pencil, Trash2, Award, Loader2, Search, ChevronRight } from 'lucide-react';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 5;
 
 function unwrapBrands(response) {
   const payload = response?.data ?? response;
@@ -54,7 +54,8 @@ export default function AdminBrands() {
     return brands.filter(brand => [brand.name, brand.slug, brand.description].some(value => String(value || '').toLowerCase().includes(query)));
   }, [brands, search]);
   const pageCount = Math.max(1, Math.ceil(filteredBrands.length / PAGE_SIZE));
-  const pageBrands = filteredBrands.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const currentPage = Math.min(page, pageCount);
+  const pageBrands = filteredBrands.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const openCreate = () => { setEditItem(null); setForm({ name: '', description: '', isActive: true }); setImageFile(null); setCreateOpen(true); };
   const openEdit = brand => { setEditItem(brand); setForm({ name: brand.name, description: brand.description || '', isActive: Boolean(brand.isActive) }); setImageFile(null); setOpen(true); };
@@ -88,6 +89,7 @@ export default function AdminBrands() {
     try {
       await api.delete(`/brands/${brand.brandId}`);
       toast({ title: 'Brand deleted' });
+      setPage(Math.min(currentPage, Math.max(1, Math.ceil((filteredBrands.length - 1) / PAGE_SIZE))));
       refetch();
     } catch (err) {
       toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message });
@@ -128,7 +130,7 @@ export default function AdminBrands() {
       })}
     </section>}
 
-    {!createOpen && <div className="flex flex-col items-center justify-between gap-2 py-1 sm:flex-row"><p className="text-[9px] text-[#858991]">Showing {filteredBrands.length ? (page - 1) * PAGE_SIZE + 1 : 0}–{Math.min(page * PAGE_SIZE, filteredBrands.length)} of {filteredBrands.length.toLocaleString()} brands <span className="ml-1">· product counts reflect loaded catalog items</span></p><div className="flex items-center gap-1.5"><Button type="button" variant="outline" disabled={page <= 1} onClick={() => setPage(value => Math.max(1, value - 1))} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Previous</Button><span className="px-1 text-[10px] text-[#686c73]">{page} / {pageCount}</span><Button type="button" variant="outline" disabled={page >= pageCount} onClick={() => setPage(value => Math.min(pageCount, value + 1))} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Next</Button></div></div>}
+    {!createOpen && <div className="flex flex-col items-center justify-between gap-2 py-1 sm:flex-row"><p className="text-[9px] text-[#858991]">Showing {filteredBrands.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0}–{Math.min(currentPage * PAGE_SIZE, filteredBrands.length)} of {filteredBrands.length.toLocaleString()} brands <span className="ml-1">· product counts reflect loaded catalog items</span></p><div className="flex items-center gap-1.5"><Button type="button" variant="outline" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Previous</Button><span className="px-1 text-[10px] text-[#686c73]">{currentPage} / {pageCount}</span><Button type="button" variant="outline" disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)} className="h-7 rounded-full border-[#e1e2e5] px-2.5 text-[9px]">Next</Button></div></div>}
 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[88vh] max-w-md overflow-y-auto rounded-[16px] border-[#e6e7ea]">

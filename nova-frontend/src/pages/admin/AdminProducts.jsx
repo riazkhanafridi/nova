@@ -19,7 +19,7 @@ const STATUS_COLOR = {
   DRAFT: 'bg-amber-100 text-amber-700',
   out_of_stock: 'bg-red-100 text-red-700',
 };
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 5;
 
 function ProductSwitch({ label, hint, checked, onChange }) {
   return <div className="flex items-center justify-between gap-3">

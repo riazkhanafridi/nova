@@ -13,8 +13,9 @@ import {
   removeGuestCartItem,
   updateGuestCartItem,
   getCartItemPrice,
+  notifyCartUpdated,
 } from '../../lib/cart';
-import { ShoppingCart, Trash2, Plus, Minus, ChevronLeft, Truck, MessageCircle, ShoppingBag } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ChevronLeft, Truck, MessageCircle, ShoppingBag, Tag } from 'lucide-react';
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ export default function CartPage() {
   const { toast } = useToast();
   
   const { data, loading, refetch } = useFetch(user ? '/cart' : null, { enabled: !!user });
+  const { data: availableCouponsResponse, loading: couponsLoading, error: couponsError } = useFetch('/coupons/available');
+  const availableCoupons = Array.isArray(availableCouponsResponse?.data) ? availableCouponsResponse.data : [];
   const [updating, setUpdating] = useState(null);
   const [guestCartItems, setGuestCartItems] = useState(() => getGuestCart());
   const [couponCode, setCouponCode] = useState('');
@@ -61,6 +64,7 @@ export default function CartPage() {
     setUpdating(id);
     try {
       await api.patch(`/cart/item/${id}`, { quantity: newQty });
+      notifyCartUpdated();
       refetch();
     } catch (err) {
       toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message || 'Failed to update quantity.' });
@@ -82,6 +86,7 @@ export default function CartPage() {
     setUpdating(id);
     try {
       await api.delete(`/cart/item/${id}`);
+      notifyCartUpdated();
       toast({ title: 'Item removed' });
       refetch();
     } catch (err) {
@@ -97,30 +102,29 @@ export default function CartPage() {
 
   // Coupon discount calculation
   const couponDiscount = appliedCoupon
-    ? (appliedCoupon.discountType === 'percentage'
-        ? subtotal * (Number(appliedCoupon.discountValue) / 100)
-        : Number(appliedCoupon.discountAmount || appliedCoupon.discountValue || 0))
+    ? Math.min(Number(appliedCoupon.discountAmount) || 0, subtotal)
     : 0;
 
   const vat = (subtotal - couponDiscount) * 0.1;
   const total = subtotal - couponDiscount + vat;
 
-  const handleApplyCoupon = async () => {
-    const code = couponCode.trim().toUpperCase();
+  const handleApplyCoupon = async selectedCode => {
+    const code = (selectedCode ?? couponCode).trim().toUpperCase();
     if (!code) return;
+    setCouponCode(code);
     setCouponLoading(true);
     try {
       const { data: res } = await api.post('/coupons/validate', {
         code,
-        orderTotal: subtotal,
+        orderAmount: subtotal,
       });
       const coupon = res?.data || res;
       setAppliedCoupon({ ...coupon, code });
       toast({
         title: `Coupon "${code}" applied!`,
-        description: coupon.discountType === 'percentage'
-          ? `${coupon.discountValue}% discount applied`
-          : `QAR ${Number(coupon.discountAmount || coupon.discountValue).toFixed(2)} off your order`,
+        description: coupon.type === 'PERCENTAGE'
+          ? `${Number(coupon.value)}% discount applied`
+          : `QAR ${Number(coupon.discountAmount).toFixed(2)} off your order`,
       });
     } catch (err) {
       setAppliedCoupon(null);
@@ -340,16 +344,57 @@ export default function CartPage() {
                       placeholder="Enter Code"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                      onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleApplyCoupon();
+                        }
+                      }}
                       className="h-10 bg-white rounded-xl border border-slate-200 text-xs px-3 text-slate-900 placeholder:text-slate-400 flex-1 focus-visible:ring-1 focus-visible:ring-orange-500"
                     />
                     <Button
-                      onClick={handleApplyCoupon}
+                      onClick={() => handleApplyCoupon()}
                       disabled={couponLoading || !couponCode.trim()}
                       className="h-10 px-4 bg-black hover:bg-slate-800 text-white font-bold rounded-full text-xs transition-colors disabled:opacity-60"
                     >
                       {couponLoading ? <span className="h-3 w-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Apply'}
                     </Button>
+                  </div>
+                )}
+                {!appliedCoupon && (couponsLoading || couponsError || availableCoupons.length > 0) && (
+                  <div className="mt-3 space-y-2">
+                    <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                      <Tag className="h-3 w-3" /> Available coupons
+                    </p>
+                    {couponsLoading ? (
+                      <p className="text-xs text-slate-400">Loading coupons...</p>
+                    ) : couponsError ? (
+                      <p className="text-xs text-red-500">Could not load available coupons.</p>
+                    ) : availableCoupons.map(coupon => {
+                      const minimum = Number(coupon.minOrderAmount) || 0;
+                      const meetsMinimum = subtotal >= minimum;
+                      const discountLabel = coupon.type === 'PERCENTAGE'
+                        ? `${Number(coupon.value)}% off`
+                        : `QAR ${Number(coupon.value).toFixed(2)} off`;
+                      return (
+                        <div key={coupon.couponId} className="flex items-center justify-between gap-3 rounded-xl border border-orange-100 bg-orange-50/70 px-3 py-2">
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-bold text-slate-800">{coupon.code} <span className="font-medium text-orange-700">· {discountLabel}</span></p>
+                            <p className="mt-0.5 text-[10px] text-slate-500">
+                              {minimum > 0 ? `Minimum order QAR ${minimum.toLocaleString()}` : coupon.description || 'No minimum order'}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={() => handleApplyCoupon(coupon.code)}
+                            disabled={couponLoading || !meetsMinimum}
+                            className="h-7 shrink-0 rounded-full bg-black px-3 text-[10px] font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+                          >
+                            Apply
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
