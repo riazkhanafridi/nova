@@ -19,6 +19,7 @@ const STATUS_COLOR = {
   DRAFT: 'bg-amber-100 text-amber-700',
   out_of_stock: 'bg-red-100 text-red-700',
 };
+const PAGE_SIZE = 12;
 
 function ProductSwitch({ label, hint, checked, onChange }) {
   return <div className="flex items-center justify-between gap-3">
@@ -198,13 +199,14 @@ function ProductEditor({ product, form, setForm, categories, brands, images, set
 
 export default function AdminProducts() {
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const { data: categoriesData } = useFetch('/categories');
   const { data: brandsData } = useFetch('/brands');
-  const { data, loading, refetch } = useFetch('/products', { params: { search, limit: 50 } });
+  const { data, loading, refetch } = useFetch('/products', { params: { search, page, limit: PAGE_SIZE } });
 
   const products = Array.isArray(data?.data?.products)
     ? data.data.products
@@ -215,6 +217,14 @@ export default function AdminProducts() {
         : Array.isArray(data?.products)
           ? data.products
           : [];
+  const pagination = data?.data?.pagination ?? data?.pagination;
+  const totalProducts = Number(pagination?.total ?? products.length);
+  const pageCount = Math.max(1, Number(pagination?.totalPages ?? Math.ceil(totalProducts / PAGE_SIZE)));
+  const currentPage = Math.min(page, pageCount);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
   const categories = Array.isArray(categoriesData?.data)
     ? categoriesData.data
     : Array.isArray(categoriesData)
@@ -311,7 +321,7 @@ export default function AdminProducts() {
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input placeholder="Search products..." className="border-slate-200 bg-white pl-9 text-slate-700" value={search} onChange={e => setSearch(e.target.value)} />
+        <Input placeholder="Search products..." className="border-slate-200 bg-white pl-9 text-slate-700" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
       </div>
 
       <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
@@ -383,6 +393,14 @@ export default function AdminProducts() {
               })}
             </tbody>
           </table>
+        </div>
+        <div className="flex flex-col items-center justify-between gap-2 border-t border-slate-100 px-5 py-3 sm:flex-row">
+          <p className="text-xs text-slate-500">Showing {totalProducts ? (currentPage - 1) * PAGE_SIZE + 1 : 0}–{Math.min(currentPage * PAGE_SIZE, totalProducts)} of {totalProducts.toLocaleString()} products</p>
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" disabled={currentPage <= 1 || loading} onClick={() => setPage(value => Math.max(1, value - 1))}>Previous</Button>
+            <span className="min-w-12 text-center text-xs text-slate-600">{currentPage} / {pageCount}</span>
+            <Button type="button" variant="outline" disabled={currentPage >= pageCount || loading} onClick={() => setPage(value => Math.min(pageCount, value + 1))}>Next</Button>
+          </div>
         </div>
       </div>
 
